@@ -1,5 +1,6 @@
 const express = require("express");
 require("dotenv").config();
+const { connectDb } = require("./lib/db");
 
 const app = express();
 
@@ -11,6 +12,15 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running at ${process.env.PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDb();
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is running at ${process.env.PORT}`);
+    });
+  } catch (error) {
+    console.error(`Server failed to start: ${error.message}`);
+  }
+};
+
+startServer();
