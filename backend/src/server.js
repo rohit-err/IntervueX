@@ -3,7 +3,7 @@ require("dotenv").config();
 const cors = require("cors");
 const { serve } = require("inngest/express");
 const { connectDb } = require("./lib/db");
-const { inngest } = require("./lib/inngest");
+const { inngest, functions } = require("./lib/inngest");
 
 const app = express();
 
