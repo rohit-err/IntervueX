@@ -1,10 +1,15 @@
 const express = require("express");
 require("dotenv").config();
+const cors = require("cors");
+const { serve } = require("inngest/express");
 const { connectDb } = require("./lib/db");
+const { inngest } = require("./lib/inngest");
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
+app.use("/api/inngest", serve({ client: inngest, functions }));
 
 app.get("/", (req, res) => {
   res.send({
