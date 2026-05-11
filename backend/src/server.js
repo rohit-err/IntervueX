@@ -8,7 +8,12 @@ const { inngest, functions } = require("./lib/inngest");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://intervue-x-hazel.vercel.app"],
+    credentials: true,
+  }),
+);
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
 app.get("/", (req, res) => {
