@@ -20,8 +20,9 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   try {
     await connectDb();
-    app.listen(process.env.PORT, () => {
-      console.log(`Server is running at ${process.env.PORT}`);
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server is running at ${PORT}`);
     });
   } catch (error) {
     console.error(`Server failed to start: ${error.message}`);
