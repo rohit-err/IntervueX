@@ -1,6 +1,7 @@
 const { Inngest } = require("inngest");
 const { connectDb } = require("./db");
 const { User } = require("../models/User");
+const { chatClient } = require("./stream");
 
 const inngest = new Inngest({
   id: "intervuex-backend",
@@ -21,6 +22,12 @@ const syncUser = inngest.createFunction(
 
       await newUser.save();
 
+      await chatClient.upsertUser({
+        id: newUser.clerkId,
+        name: newUser.name,
+        image: newUser.profileImage,
+      });
+
       return { success: true };
     } catch (error) {
       console.error("Error creating user:", error);
@@ -38,6 +45,8 @@ const deleteUser = inngest.createFunction(
       await User.deleteOne({
         clerkId: event.data.id,
       });
+
+      await chatClient.deleteUser(event.data.id);
 
       return { success: true };
     } catch (error) {
