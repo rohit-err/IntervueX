@@ -2,11 +2,14 @@ const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
 const { serve } = require("inngest/express");
+const { clerkMiddleware, getAuth } = require("@clerk/express");
 const { connectDb } = require("./lib/db");
 const { inngest, functions } = require("./lib/inngest");
+const { protectRoute } = require("./middlewares/protectRoute");
 
 const app = express();
 
+app.use(clerkMiddleware());
 app.use(express.json());
 app.use(
   cors({
