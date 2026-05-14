@@ -6,6 +6,7 @@ const { clerkMiddleware, getAuth } = require("@clerk/express");
 const { connectDb } = require("./lib/db");
 const { inngest, functions } = require("./lib/inngest");
 const { protectRoute } = require("./middlewares/protectRoute");
+const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(
   }),
 );
 app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use("/api/chat", chatRoutes);
 
 app.get("/", (req, res) => {
   res.send({
