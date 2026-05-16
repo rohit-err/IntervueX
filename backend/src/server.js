@@ -7,6 +7,7 @@ const { connectDb } = require("./lib/db");
 const { inngest, functions } = require("./lib/inngest");
 const { protectRoute } = require("./middlewares/protectRoute");
 const chatRoutes = require("./routes/chatRoutes");
+const sessionRoutes = require("./routes/sessionRoutes");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(
 );
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
+app.use("/api/sessions", sessionRoutes);
 
 app.get("/", (req, res) => {
   res.send({
