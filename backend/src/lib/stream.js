@@ -1,4 +1,5 @@
 const { StreamChat } = require("stream-chat");
+const { StreamClient } = require("@stream-io/node-sdk");
 
 const apiKey = process.env.STREAM_API_KEY;
 const apiSecret = process.env.STREAM_API_SECRET;
@@ -11,5 +12,6 @@ const chatClient = StreamChat.getInstance(
   process.env.STREAM_API_KEY,
   process.env.STREAM_API_SECRET,
 );
+const streamClient = new StreamClient(apiKey, apiSecret);
 
-module.exports = { chatClient };
+module.exports = { chatClient, streamClient };
