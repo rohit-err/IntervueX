@@ -34,10 +34,6 @@ const sessionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    channelId: {
-      type: String,
-      default: "",
-    },
   },
   { timestamps: true },
 );
