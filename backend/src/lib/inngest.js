@@ -2,6 +2,7 @@ const { Inngest } = require("inngest");
 const { connectDb } = require("./db");
 const { User } = require("../models/User");
 const { chatClient } = require("./stream");
+const { sendEmail } = require("./nodemailer");
 
 const inngest = new Inngest({
   id: "intervuex-backend",
@@ -56,5 +57,21 @@ const deleteUser = inngest.createFunction(
   },
 );
 
-const functions = [syncUser, deleteUser];
+const sendSessionInvite = inngest.createFunction(
+  {
+    id: "send-session-invite",
+    triggers: [{ event: "session/invite.send" }],
+  },
+  async ({ event }) => {
+    try {
+      await sendEmail({ to: event.data.to, joinLink: event.data.joinLink });
+      return { success: true };
+    } catch (error) {
+      console.error("Error sending session invite:", error);
+      throw error;
+    }
+  },
+);
+
+const functions = [syncUser, deleteUser, sendSessionInvite];
 module.exports = { inngest, functions };

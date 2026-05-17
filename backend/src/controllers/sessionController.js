@@ -1,15 +1,16 @@
 const { streamClient, chatClient } = require("../lib/stream");
 const { Session } = require("../models/Session");
+const { inngest } = require("../lib/inngest");
 
 const createSession = async (req, res) => {
   try {
-    const { problem, difficulty } = req.body;
+    const { problem, difficulty, participantEmail } = req.body;
     const { _id, clerkId } = req.user;
 
-    if (!problem || !difficulty) {
+    if (!problem || !difficulty || !participantEmail) {
       return res.status(400).json({
         success: false,
-        message: "Problem and difficulty are required",
+        message: "Problem, difficulty and participant email are required",
       });
     }
 
@@ -44,6 +45,19 @@ const createSession = async (req, res) => {
     });
 
     await session.save();
+
+    const joinLink = `${process.env.CLIENT_URL}/join/${session._id}`;
+
+    session.link = joinLink;
+    await session.save();
+
+    await inngest.send({
+      name: "session/invite.send",
+      data: {
+        to: participantEmail,
+        joinLink,
+      },
+    });
 
     return res.status(201).json({
       success: true,

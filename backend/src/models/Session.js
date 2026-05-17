@@ -26,6 +26,10 @@ const sessionSchema = new mongoose.Schema(
       enum: ["active", "completed"],
       default: "active",
     },
+    link: {
+      type: String,
+      default: "",
+    },
     callId: {
       type: String,
       default: "",
