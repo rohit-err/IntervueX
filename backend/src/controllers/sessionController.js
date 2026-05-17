@@ -24,11 +24,7 @@ const createSession = async (req, res) => {
       },
     });
 
-    const channelId = `channel_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(7)}`;
-
-    const channel = chatClient.channel("messaging", channelId, {
+    const channel = chatClient.channel("messaging", callId, {
       name: `${problem} Session`,
       created_by_id: clerkId,
       members: [clerkId],
@@ -41,7 +37,6 @@ const createSession = async (req, res) => {
       difficulty,
       host: _id,
       callId,
-      channelId,
     });
 
     await session.save();
@@ -147,6 +142,13 @@ const joinSession = async (req, res) => {
       });
     }
 
+    if (session.host.toString() === _id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "Host cannot join their own session as participant",
+      });
+    }
+
     if (session.participant) {
       return res.status(400).json({
         success: false,
@@ -154,7 +156,7 @@ const joinSession = async (req, res) => {
       });
     }
 
-    const channel = chatClient.channel("messaging", session.channelId);
+    const channel = chatClient.channel("messaging", session.callId);
     await channel.addMembers([clerkId]);
 
     session.participant = _id;
@@ -178,9 +180,7 @@ const endSession = async (req, res) => {
   const { sessionId } = req.params;
   const { _id } = req.user;
   try {
-    const session = await Session.findById(sessionId)
-      .populate("host", "clerkId")
-      .populate("participant", "clerkId");
+    const session = await Session.findById(sessionId);
 
     if (!session) {
       return res.status(404).json({
@@ -189,7 +189,7 @@ const endSession = async (req, res) => {
       });
     }
 
-    if (session.host._id.toString() !== _id.toString()) {
+    if (session.host.toString() !== _id.toString()) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to end this session",
@@ -203,14 +203,11 @@ const endSession = async (req, res) => {
       });
     }
 
-    await streamClient.video.call("default", session.callId).end();
+    await streamClient.video
+      .call("default", session.callId)
+      .delete({ hard: true });
 
-    const members = [session.host.clerkId];
-    if (session.participant) members.push(session.participant.clerkId);
-
-    await chatClient
-      .channel("messaging", session.channelId)
-      .removeMembers(members);
+    await chatClient.channel("messaging", session.callId).delete();
 
     session.status = "completed";
     await session.save();
